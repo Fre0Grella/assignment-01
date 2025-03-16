@@ -5,6 +5,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Hashtable;
 
 public class BoidsView implements ChangeListener {
@@ -13,10 +15,14 @@ public class BoidsView implements ChangeListener {
 	private BoidsPanel boidsPanel;
 	private JSlider cohesionSlider, separationSlider, alignmentSlider;
 	private BoidsModel model;
+	private BoidsSimulator sim;
 	private int width, height;
+	private JButton startStopButton;
+	private JTextField boidInputField;
 	
-	public BoidsView(BoidsModel model, int width, int height) {
+	public BoidsView(BoidsModel model, BoidsSimulator simulator, int width, int height) {
 		this.model = model;
+		this.sim = simulator;
 		this.width = width;
 		this.height = height;
 		
@@ -30,6 +36,22 @@ public class BoidsView implements ChangeListener {
 
         boidsPanel = new BoidsPanel(this, model);
 		cp.add(BorderLayout.CENTER, boidsPanel);
+
+		JPanel controlPanel = new JPanel();
+
+		boidInputField = new JTextField(String.valueOf(BoidsSimulation.DEFAULT_BOIDS), 5); // Default 10 boids
+		startStopButton = new JButton("Start/Stop");
+		startStopButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				toggleSimulation();
+			}
+		});
+
+		controlPanel.add(new JLabel("Num Boids:"));
+		controlPanel.add(boidInputField);
+		controlPanel.add(startStopButton);
+		cp.add(BorderLayout.NORTH, controlPanel);
 
         JPanel slidersPanel = new JPanel();
         
@@ -65,6 +87,10 @@ public class BoidsView implements ChangeListener {
 		slider.setPaintLabels(true);
         slider.addChangeListener(this);
 		return slider;
+	}
+
+	private void toggleSimulation() {
+		sim.toogleSimulation();
 	}
 	
 	public void update(int frameRate) {
