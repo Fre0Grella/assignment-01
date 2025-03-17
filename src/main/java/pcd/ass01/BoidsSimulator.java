@@ -28,6 +28,10 @@ public class BoidsSimulator {
             this.running = !this.running;
     }
 
+    public void stopSimulation() {
+        this.running = false;
+    }
+
     public void runSimulation() {
     	while (true) {
             while (running) {

@@ -17,7 +17,7 @@ public class BoidsView implements ChangeListener {
 	private BoidsModel model;
 	private BoidsSimulator sim;
 	private int width, height;
-	private JButton startStopButton;
+	private JButton startStopButton,resetButton;
 	private JTextField boidInputField;
 	
 	public BoidsView(BoidsModel model, BoidsSimulator simulator, int width, int height) {
@@ -39,7 +39,14 @@ public class BoidsView implements ChangeListener {
 
 		JPanel controlPanel = new JPanel();
 
-		boidInputField = new JTextField(String.valueOf(BoidsSimulation.DEFAULT_BOIDS), 5); // Default 10 boids
+		boidInputField = new JTextField(String.valueOf(BoidsSimulation.DEFAULT_BOIDS), 5);
+		resetButton = new JButton("Reset");
+		resetButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				resetSimulation();
+			}
+		});
 		startStopButton = new JButton("Start/Stop");
 		startStopButton.addActionListener(new ActionListener() {
 			@Override
@@ -50,6 +57,7 @@ public class BoidsView implements ChangeListener {
 
 		controlPanel.add(new JLabel("Num Boids:"));
 		controlPanel.add(boidInputField);
+		controlPanel.add(resetButton);
 		controlPanel.add(startStopButton);
 		cp.add(BorderLayout.NORTH, controlPanel);
 
@@ -73,6 +81,17 @@ public class BoidsView implements ChangeListener {
         frame.setVisible(true);
 	}
 
+	private void resetSimulation() {
+		sim.stopSimulation();
+		try {
+			int numBoids = Integer.parseInt(boidInputField.getText());
+			model.initializeBoids(numBoids);
+		} catch (NumberFormatException ex) {
+			JOptionPane.showMessageDialog(frame, "Invalid number of boids", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+
+	}
+
 	private JSlider makeSlider() {
 		var slider = new JSlider(JSlider.HORIZONTAL, 0, 20, 10);        
 		slider.setMajorTickSpacing(10);
@@ -91,6 +110,7 @@ public class BoidsView implements ChangeListener {
 
 	private void toggleSimulation() {
 		sim.toogleSimulation();
+
 	}
 	
 	public void update(int frameRate) {
