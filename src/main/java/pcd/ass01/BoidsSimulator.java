@@ -3,6 +3,9 @@ package pcd.ass01;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 
 public class BoidsSimulator {
 
@@ -13,10 +16,14 @@ public class BoidsSimulator {
     private int framerate;
     private boolean running = true;
     private final int cores;
+    private CyclicBarrier barrier;
+    private CountDownLatch cd;
 
     public BoidsSimulator(BoidsModel model, int cores) {
         this.model = model;
         this.cores = cores; //for an optimal use of thread
+        this.barrier = new CyclicBarrier(cores);
+        this.cd = new CountDownLatch(1);
         view = Optional.empty();
     }
 
@@ -38,34 +45,50 @@ public class BoidsSimulator {
 
     public void runSimulation() {
     	while (true) {
+            var boids = model.getBoids();
+            var nboids = boids.size();
+            final var pool = new ArrayList<Thread>();
+            for (int i = 0; i < cores; i++) {
+                var indexStart = i*nboids/cores;
+                var indexEnd = (i+1)*nboids/cores;
 
-            while (running) {
-                var t0 = System.currentTimeMillis();
-    		    var boids = model.getBoids();
-                var nboids = boids.size();
-                final var pool = new ArrayList<Thread>();
-                for (int i = 0; i < cores; i++) {
-                    var indexStart = i*nboids/cores;
-                    var indexEnd = ((i+1)*nboids/cores)-1;
-
-                    pool.add(new Thread(() -> {
+                pool.add(new Thread(() -> {
+                    while(running) {
                         for (int k = indexStart; k < indexEnd; k++) {
                             boids.get(k).updateVelocity(model);
                         }
 
-                        //TODO: Barrier here
+                        try {
+                            barrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
                         /*
                          * ..then update positions
                          */
                         for (int k = indexStart; k < indexEnd; k++) {
                             boids.get(k).updatePos(model);
                         }
-                    }));
-                }
 
-                pool.forEach(Thread::start);
-
-
+                        barrier.reset();
+                        try {
+                            cd.await();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }));
+            }
+            pool.forEach(Thread::start);
+                /*pool.forEach((t)->{
+                    try {
+                        t.join();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                });*/
+            while (running) {
+                var t0 = System.currentTimeMillis();
 
     		    if (view.isPresent()) {
                 	view.get().update(framerate);
@@ -82,6 +105,7 @@ public class BoidsSimulator {
                     	framerate = (int) (1000/dtElapsed);
                     }
     		    }
+                cd.countDown();
             }
             try {
                 Thread.sleep(50);
