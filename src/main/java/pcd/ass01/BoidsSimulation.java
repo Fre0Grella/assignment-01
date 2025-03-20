@@ -25,8 +25,9 @@ public class BoidsSimulation {
     					ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT,
     					MAX_SPEED,
     					PERCEPTION_RADIUS,
-    					AVOID_RADIUS); 
-    	var sim = new BoidsSimulator(model);
+    					AVOID_RADIUS);
+		int cores = Runtime.getRuntime().availableProcessors();
+    	var sim = new BoidsSimulator(model,cores);
     	var view = new BoidsView(model, sim, SCREEN_WIDTH, SCREEN_HEIGHT);
     	sim.attachView(view);
     	sim.runSimulation();

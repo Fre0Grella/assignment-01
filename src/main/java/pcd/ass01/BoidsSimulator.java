@@ -1,5 +1,7 @@
 package pcd.ass01;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class BoidsSimulator {
@@ -10,9 +12,11 @@ public class BoidsSimulator {
     private static final int FRAMERATE = 25;
     private int framerate;
     private boolean running = true;
+    private final int cores;
 
-    public BoidsSimulator(BoidsModel model) {
+    public BoidsSimulator(BoidsModel model, int cores) {
         this.model = model;
+        this.cores = cores; //for an optimal use of thread
         view = Optional.empty();
     }
 
@@ -34,28 +38,33 @@ public class BoidsSimulator {
 
     public void runSimulation() {
     	while (true) {
+
             while (running) {
                 var t0 = System.currentTimeMillis();
     		    var boids = model.getBoids();
-    		    /*
-    		    for (Boid boid : boids) {
-                    boid.update(model);
-                }
-                */
+                var nboids = boids.size();
+                final var pool = new ArrayList<Thread>();
+                for (int i = 0; i < cores; i++) {
+                    var indexStart = i*nboids/cores;
+                    var indexEnd = ((i+1)*nboids/cores)-1;
 
-    		    /*
-    		     * Improved correctness: first update velocities...
-    		     */
-    		    for (Boid boid : boids) {
-                    boid.updateVelocity(model);
+                    pool.add(new Thread(() -> {
+                        for (int k = indexStart; k < indexEnd; k++) {
+                            boids.get(k).updateVelocity(model);
+                        }
+
+                        //TODO: Barrier here
+                        /*
+                         * ..then update positions
+                         */
+                        for (int k = indexStart; k < indexEnd; k++) {
+                            boids.get(k).updatePos(model);
+                        }
+                    }));
                 }
 
-    		    /*
-    		     * ..then update positions
-    		     */
-    		    for (Boid boid : boids) {
-                    boid.updatePos(model);
-                }
+                pool.forEach(Thread::start);
+
 
 
     		    if (view.isPresent()) {
