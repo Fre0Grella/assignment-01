@@ -56,7 +56,7 @@ public class BoidsView implements ChangeListener {
             generateButton.setEnabled(true);
             boidInputField.setEnabled(true);
             resetButton.setEnabled(false);
-            generateSimulation();
+            //TODO Add method here!
         });
         startStopButton = new JButton("Start/Stop");
         startStopButton.addActionListener(e -> toggleSimulation());
@@ -66,6 +66,7 @@ public class BoidsView implements ChangeListener {
         controlPanel.add(boidInputField);
         controlPanel.add(generateButton);
         controlPanel.add(startStopButton);
+        controlPanel.add(resetButton);
         cp.add(BorderLayout.NORTH, controlPanel);
 
         JPanel slidersPanel = new JPanel();
