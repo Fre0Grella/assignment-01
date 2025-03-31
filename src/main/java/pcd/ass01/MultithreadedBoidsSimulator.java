@@ -7,7 +7,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class MultithreadedBoidsSimulator {
+public class MultithreadedBoidsSimulator implements BoidsSimulator {
 
     private final BoidsModel model;
     private Optional<BoidsView> view;

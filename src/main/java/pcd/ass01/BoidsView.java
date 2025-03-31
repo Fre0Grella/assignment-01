@@ -14,14 +14,15 @@ public class BoidsView implements ChangeListener {
     private final JSlider separationSlider;
     private final JSlider alignmentSlider;
     private final BoidsModel model;
-    private final MultithreadedBoidsSimulator sim;
+    private final BoidsSimulator sim;
     private final int width;
     private final int height;
     private final JButton startStopButton;
     private final JButton generateButton;
     private final JTextField boidInputField;
+    private final JButton resetButton;
 
-    public BoidsView(BoidsModel model, MultithreadedBoidsSimulator simulator, int width, int height) {
+    public BoidsView(BoidsModel model, BoidsSimulator simulator, int width, int height) {
         this.model = model;
         this.sim = simulator;
         this.width = width;
@@ -40,16 +41,26 @@ public class BoidsView implements ChangeListener {
         cp.add(BorderLayout.CENTER, boidsPanel);
 
         JPanel controlPanel = new JPanel();
+        resetButton = new JButton("Reset");
+        resetButton.setEnabled(false);
 
         boidInputField = new JTextField(String.valueOf(0), 5);
         generateButton = new JButton("Generate");
         generateButton.addActionListener(e -> {
             generateButton.setEnabled(false);
             boidInputField.setEnabled(false);
+            resetButton.setEnabled(true);
+            generateSimulation();
+        });
+        resetButton.addActionListener(e -> {
+            generateButton.setEnabled(true);
+            boidInputField.setEnabled(true);
+            resetButton.setEnabled(false);
             generateSimulation();
         });
         startStopButton = new JButton("Start/Stop");
         startStopButton.addActionListener(e -> toggleSimulation());
+
 
         controlPanel.add(new JLabel("Num Boids:"));
         controlPanel.add(boidInputField);
