@@ -14,18 +14,19 @@ public class BoidsView implements ChangeListener {
     private final JSlider separationSlider;
     private final JSlider alignmentSlider;
     private final BoidsModel model;
-    private final BoidsSimulator sim;
+    private final MultithreadedBoidsSimulator sim;
     private final int width;
     private final int height;
     private final JButton startStopButton;
     private final JButton generateButton;
     private final JTextField boidInputField;
 
-    public BoidsView(BoidsModel model, BoidsSimulator simulator, int width, int height) {
+    public BoidsView(BoidsModel model, MultithreadedBoidsSimulator simulator, int width, int height) {
         this.model = model;
         this.sim = simulator;
         this.width = width;
         this.height = height;
+
 
         frame = new JFrame("Boids Simulation");
         frame.setSize(width, height);
@@ -43,11 +44,9 @@ public class BoidsView implements ChangeListener {
         boidInputField = new JTextField(String.valueOf(0), 5);
         generateButton = new JButton("Generate");
         generateButton.addActionListener(e -> {
-            var numBoids = Integer.parseInt(boidInputField.getText());
-            model.setNumBoids(numBoids);
             generateButton.setEnabled(false);
             boidInputField.setEnabled(false);
-            new Thread(sim::runSimulation).start();
+            generateSimulation();
         });
         startStopButton = new JButton("Start/Stop");
         startStopButton.addActionListener(e -> toggleSimulation());
@@ -78,6 +77,17 @@ public class BoidsView implements ChangeListener {
         frame.setVisible(true);
     }
 
+    private void generateSimulation() {
+        try {
+            int numBoids = Integer.parseInt(boidInputField.getText());
+            model.initializeBoids(numBoids);
+            new Thread(sim::runSimulation).start();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(frame, "Invalid number of boids", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+
     private JSlider makeSlider() {
         var slider = new JSlider(JSlider.HORIZONTAL, 0, 20, 10);
         slider.setMajorTickSpacing(10);
@@ -95,7 +105,8 @@ public class BoidsView implements ChangeListener {
     }
 
     private void toggleSimulation() {
-        sim.toogleSimulation();
+        sim.toggleSimulation();
+
     }
 
     public void update(int frameRate) {

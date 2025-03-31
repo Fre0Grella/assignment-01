@@ -25,8 +25,11 @@ public class BoidsSimulation {
                 MAX_SPEED,
                 PERCEPTION_RADIUS,
                 AVOID_RADIUS);
-        var sim = new BoidsSimulator(model);
+		int cores = Runtime.getRuntime().availableProcessors();
+		System.out.println("Number of available core used: "+cores);
+        var sim = new MultithreadedBoidsSimulator(model, cores);
         var view = new BoidsView(model, sim, SCREEN_WIDTH, SCREEN_HEIGHT);
-        sim.attachView(view);
+    	sim.attachView(view);
+
     }
 }
