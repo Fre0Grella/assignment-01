@@ -4,8 +4,6 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Hashtable;
 
 public class BoidsView implements ChangeListener {
@@ -16,14 +14,14 @@ public class BoidsView implements ChangeListener {
     private final JSlider separationSlider;
     private final JSlider alignmentSlider;
     private final BoidsModel model;
-    private final BoidsSimulator sim;
+    private final MultithreadedBoidsSimulator sim;
     private final int width;
     private final int height;
     private final JButton startStopButton;
     private final JButton generateButton;
     private final JTextField boidInputField;
 
-    public BoidsView(BoidsModel model, BoidsSimulator simulator, int width, int height) {
+    public BoidsView(BoidsModel model, MultithreadedBoidsSimulator simulator, int width, int height) {
         this.model = model;
         this.sim = simulator;
         this.width = width;

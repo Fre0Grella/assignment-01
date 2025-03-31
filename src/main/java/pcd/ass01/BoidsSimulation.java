@@ -1,8 +1,5 @@
 package pcd.ass01;
 
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.ReentrantLock;
-
 public class BoidsSimulation {
 
 	//final static int DEFAULT_BOIDS = 5000;
@@ -30,7 +27,7 @@ public class BoidsSimulation {
     					AVOID_RADIUS);
 		int cores = Runtime.getRuntime().availableProcessors();
 		System.out.println("Number of available core used: "+cores);
-    	var sim = new BoidsSimulator(model,cores);
+    	var sim = new MultithreadedBoidsSimulator(model,cores);
     	var view = new BoidsView(model, sim, SCREEN_WIDTH, SCREEN_HEIGHT);
     	sim.attachView(view);
 

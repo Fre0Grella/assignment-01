@@ -6,9 +6,8 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.IntStream;
 
-public class BoidsSimulator {
+public class MultithreadedBoidsSimulator {
 
     private final BoidsModel model;
     private Optional<BoidsView> view;
@@ -21,7 +20,7 @@ public class BoidsSimulator {
     private final CyclicBarrier updateViewBarrier;
     private final Semaphore viewCoordinator = new Semaphore(1);
 
-    public BoidsSimulator(BoidsModel model, int cores) {
+    public MultithreadedBoidsSimulator(BoidsModel model, int cores) {
         this.model = model;
         this.cores = cores;
         this.barrier = new CyclicBarrier(cores);
