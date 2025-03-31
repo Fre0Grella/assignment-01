@@ -21,20 +21,14 @@ public class SerialBoidsSimulator implements BoidsSimulator {
     }
 
     @Override
-    public void toggleSimulation() {
-        running = !running;
+    public void startSimulation() {
+        running = true;
     }
 
-    public boolean isRunning() {
-        return running;
-    }
-
-    public void toogleSimulation() {
-            this.running = !this.running;
-    }
-
+    @Override
     public void stopSimulation() {
         this.running = false;
+
     }
 
     public void runSimulation() {

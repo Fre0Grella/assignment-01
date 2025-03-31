@@ -17,10 +17,11 @@ public class BoidsView implements ChangeListener {
     private final BoidsSimulator sim;
     private final int width;
     private final int height;
-    private final JButton startStopButton;
+    private final JButton startButton;
     private final JButton generateButton;
     private final JTextField boidInputField;
-    private final JButton resetButton;
+    private final JButton stopButton;
+    private boolean firstTime = true;
 
     public BoidsView(BoidsModel model, BoidsSimulator simulator, int width, int height) {
         this.model = model;
@@ -41,32 +42,42 @@ public class BoidsView implements ChangeListener {
         cp.add(BorderLayout.CENTER, boidsPanel);
 
         JPanel controlPanel = new JPanel();
-        resetButton = new JButton("Reset");
-        resetButton.setEnabled(false);
-
         boidInputField = new JTextField(String.valueOf(0), 5);
+
         generateButton = new JButton("Generate");
+        startButton = new JButton("Start");
+        startButton.setEnabled(false);
+        stopButton = new JButton("Stop");
+        stopButton.setEnabled(false);
         generateButton.addActionListener(e -> {
             generateButton.setEnabled(false);
             boidInputField.setEnabled(false);
-            resetButton.setEnabled(true);
+            startButton.setEnabled(false);
+            stopButton.setEnabled(true);
             generateSimulation();
+            sim.startSimulation();
         });
-        resetButton.addActionListener(e -> {
+        startButton.addActionListener(e -> {
+            sim.startSimulation();
+            generateButton.setEnabled(false);
+            boidInputField.setEnabled(false);
+            startButton.setEnabled(false);
+            stopButton.setEnabled(true);
+        });
+        stopButton.addActionListener(e -> {
             generateButton.setEnabled(true);
             boidInputField.setEnabled(true);
-            resetButton.setEnabled(false);
-            //TODO Add method here!
+            startButton.setEnabled(true);
+            stopButton.setEnabled(false);
+            sim.stopSimulation();
         });
-        startStopButton = new JButton("Start/Stop");
-        startStopButton.addActionListener(e -> toggleSimulation());
 
 
         controlPanel.add(new JLabel("Num Boids:"));
         controlPanel.add(boidInputField);
         controlPanel.add(generateButton);
-        controlPanel.add(startStopButton);
-        controlPanel.add(resetButton);
+        controlPanel.add(startButton);
+        controlPanel.add(stopButton);
         cp.add(BorderLayout.NORTH, controlPanel);
 
         JPanel slidersPanel = new JPanel();
@@ -93,7 +104,10 @@ public class BoidsView implements ChangeListener {
         try {
             int numBoids = Integer.parseInt(boidInputField.getText());
             model.initializeBoids(numBoids);
-            new Thread(sim::runSimulation).start();
+            if (firstTime) {
+                firstTime = false;
+                new Thread(sim::runSimulation).start();
+            }
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(frame, "Invalid number of boids", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -114,11 +128,6 @@ public class BoidsView implements ChangeListener {
         slider.setPaintLabels(true);
         slider.addChangeListener(this);
         return slider;
-    }
-
-    private void toggleSimulation() {
-        sim.toggleSimulation();
-
     }
 
     public void update(int frameRate) {

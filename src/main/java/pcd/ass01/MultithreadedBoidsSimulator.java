@@ -32,26 +32,28 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
         this.view = Optional.of(view);
     }
 
-    public void toggleSimulation() {
-        if (this.running.get()) {
-            this.running.set(false);
-        } else {
-            running.set(true);
-            viewCoordinator.release();
-        }
+    public void startSimulation() {
+        running.set(true);
+        viewCoordinator.release();
+    }
+
+    @Override
+    public void stopSimulation() {
+        this.running.set(false);
     }
 
     public void runSimulation() {
         System.out.println("start");
-        var boids = model.getBoids();
-        var nboids = boids.size();
         final var pool = new ArrayList<Thread>();
 
         for (int i = 0; i < cores; i++) {
-            var indexStart = i * nboids / cores;
-            var indexEnd = (i + 1) * nboids / cores;
+            var id = i;
             pool.add(new Thread(() -> {
                 while (true) {
+                    var boids = model.getBoids();
+                    var nboids = boids.size();
+                    var indexStart = id * nboids / cores;
+                    var indexEnd = (id + 1) * nboids / cores;
                     try {
                         updateViewBarrier.await();
                     } catch (InterruptedException | BrokenBarrierException e) {

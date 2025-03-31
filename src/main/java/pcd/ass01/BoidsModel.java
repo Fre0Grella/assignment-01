@@ -34,20 +34,10 @@ public class BoidsModel {
         this.perceptionRadius = perceptionRadius;
         this.avoidRadius = avoidRadius;
 
-        setNumBoids(nboids);
+        initializeBoids(nboids);
 
     }
 
-
-    public void setNumBoids(int numBoids) {
-        this.boids = new ArrayList<>();
-        for (int i = 0; i < numBoids; i++) {
-            P2d pos = new P2d(-width / 2 + Math.random() * width, -height / 2 + Math.random() * height);
-            V2d vel = new V2d(Math.random() * maxSpeed / 2 - maxSpeed / 4, Math.random() * maxSpeed / 2 - maxSpeed / 4);
-            boids.add(new Boid(pos, vel));
-        }
-    }
-    
     public  List<Boid> getBoids(){
     	return boids;
     }
