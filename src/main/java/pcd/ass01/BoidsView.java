@@ -102,6 +102,7 @@ public class BoidsView implements ChangeListener {
     private void generateSimulation() {
         try {
             int numBoids = Integer.parseInt(boidInputField.getText());
+            sim.resetSimulation();
             model.initializeBoids(numBoids);
             sim.runSimulation();
         } catch (NumberFormatException ex) {
