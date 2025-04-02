@@ -42,17 +42,23 @@ public class VirtualThreadsBoidsSimulator implements BoidsSimulator {
         System.out.println("start");
         final var pool = new ArrayList<Thread>();
 
+        this.barrier = new CyclicBarrier(model.getBoids().size());
+        this.updateViewBarrier = new CyclicBarrier(model.getBoids().size() + 1);
+
+
         for (final var boid: model.getBoids()) {
             pool.add(new Thread(() -> {
                 while (true) {
+
                     try {
                         updateViewBarrier.await();
                     } catch (InterruptedException | BrokenBarrierException e) {
                         throw new RuntimeException(e);
                     }
-                    if (!running.get()) {
+                    if (false) {
                         break;
                     }
+
                     boid.updateVelocity(model);
                     //System.out.println(Thread.currentThread().getName()+" arrived");
                     try {
@@ -62,14 +68,11 @@ public class VirtualThreadsBoidsSimulator implements BoidsSimulator {
                     }
                     boid.updatePos(model);
                 }
+
             }));
         }
         pool.forEach(Thread::startVirtualThread);
         while (true) {
-            if (this.barrier == null) {
-                this.barrier = new CyclicBarrier(model.getBoids().size());
-                this.updateViewBarrier = new CyclicBarrier(model.getBoids().size() + 1);
-            }
             while (!running.get()) {
                 try {
                     viewCoordinator.acquire();
@@ -85,11 +88,16 @@ public class VirtualThreadsBoidsSimulator implements BoidsSimulator {
             } catch (InterruptedException | BrokenBarrierException e) {
                 throw new RuntimeException(e);
             }
+
+            if (false) {
+                break;
+            }
+
             if (view.isPresent()) {
                 view.get().update(framerate);
                 var t1 = System.currentTimeMillis();
                 var dtElapsed = t1 - t0;
-                System.out.println("Elapsed time:\t" + dtElapsed);
+                //System.out.println("Elapsed time:\t" + dtElapsed);
                 var framratePeriod = 1000 / FRAMERATE;
                 if (dtElapsed < framratePeriod) {
                     try {

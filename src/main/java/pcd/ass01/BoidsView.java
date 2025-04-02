@@ -21,7 +21,6 @@ public class BoidsView implements ChangeListener {
     private final JButton generateButton;
     private final JTextField boidInputField;
     private final JButton stopButton;
-    private boolean firstTime = true;
 
     public BoidsView(BoidsModel model, BoidsSimulator simulator, int width, int height) {
         this.model = model;
@@ -104,10 +103,7 @@ public class BoidsView implements ChangeListener {
         try {
             int numBoids = Integer.parseInt(boidInputField.getText());
             model.initializeBoids(numBoids);
-            if (firstTime) {
-                firstTime = false;
-                new Thread(sim::runSimulation).start();
-            }
+            sim.runSimulation();
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(frame, "Invalid number of boids", "Error", JOptionPane.ERROR_MESSAGE);
         }
