@@ -2,10 +2,12 @@ package pcd.ass01;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class Boid {
 
     private P2d pos;
+    // TODO: two RWlock for pos and vel
     private V2d vel;
 
     public Boid(P2d pos, V2d vel) {

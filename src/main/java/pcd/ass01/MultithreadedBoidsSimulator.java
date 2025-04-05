@@ -49,7 +49,7 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
         for (int i = 0; i < cores; i++) {
             var id = i;
             pool.add(new Thread(() -> {
-                while (true) {
+                for (int j = 0; j < 2; j++) {
                     var boids = model.getBoids();
                     var nboids = boids.size();
                     var indexStart = id * nboids / cores;
@@ -76,7 +76,7 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
             }));
         }
         pool.forEach(Thread::start);
-        while (true) {
+        for (int i = 0; i < 2; i++) {
 
             while (!running.get()) {
                 try {
@@ -85,7 +85,6 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
                     throw new RuntimeException(e);
                 }
             }
-
             var t0 = System.currentTimeMillis();
             try {
                 //System.out.println("View Wait");

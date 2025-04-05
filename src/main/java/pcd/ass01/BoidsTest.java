@@ -1,7 +1,12 @@
 package pcd.ass01;
 
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class BoidsTest {
-    final static int DEFAULT_BOIDS = 1500;
+    final static int DEFAULT_BOIDS = 2;
 
     final static double SEPARATION_WEIGHT = 1.0;
     final static double ALIGNMENT_WEIGHT = 1.0;
@@ -13,18 +18,25 @@ public class BoidsTest {
     static final double PERCEPTION_RADIUS = 50.0;
     static final double AVOID_RADIUS = 20.0;
 
-    final static int SCREEN_WIDTH = 800;
-    final static int SCREEN_HEIGHT = 800;
-
-    public static void main(String[] args) {
-        var model = new BoidsModel(
+    public static void main(String[] args) throws InterruptedException {
+        BoidsModel model = new BoidsModel(
                 DEFAULT_BOIDS,
                 SEPARATION_WEIGHT, ALIGNMENT_WEIGHT, COHESION_WEIGHT,
                 ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT,
                 MAX_SPEED,
                 PERCEPTION_RADIUS,
-                AVOID_RADIUS);
-        var sim = new BoidsSimulator(model);
+                AVOID_RADIUS,
+                new Supplier<Double>() {
+                    final List<Double> values = List.of(0.0);
+                    int i = -1;
+                    @Override
+                    public Double get() {
+                        i = (i + 1) % values.size();
+                        return values.get(i);
+                    }
+                }
+        );
+        MultithreadedBoidsSimulator sim = new MultithreadedBoidsSimulator(model, 2);
         sim.runSimulation();
     }
 }
