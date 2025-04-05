@@ -94,6 +94,7 @@ public class Boid {
     
     private List<Boid> getNearbyBoids(BoidsModel model) {
     	var list = new ArrayList<Boid>();
+
         for (Boid other : model.getBoids()) {
         	if (other != this) {
         		P2d otherPos = other.getPos();
