@@ -27,7 +27,7 @@ public class BoidsTest {
                 PERCEPTION_RADIUS,
                 AVOID_RADIUS,
                 new Supplier<Double>() {
-                    final List<Double> values = List.of(0.0);
+                    final List<Double> values = List.of(0.0, 0.3, 0.5, 0.7, 0.9);
                     int i = -1;
                     @Override
                     public Double get() {
