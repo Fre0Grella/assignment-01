@@ -78,13 +78,13 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
         pool.forEach(Thread::start);
         for (int i = 0; i < 2; i++) {
 
-            while (!running.get()) {
-                try {
-                    viewCoordinator.acquire();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+//            while (!running.get()) {
+//                try {
+//                    viewCoordinator.acquire();
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
             var t0 = System.currentTimeMillis();
             try {
                 //System.out.println("View Wait");
