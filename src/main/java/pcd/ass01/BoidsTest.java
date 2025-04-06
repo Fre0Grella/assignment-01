@@ -37,6 +37,8 @@ public class BoidsTest {
                 }
         );
         MultithreadedBoidsSimulator sim = new MultithreadedBoidsSimulator(model, 2);
-        sim.runSimulation();
+        new Thread(sim::runSimulation).start();
+        sim.stopSimulation();
+        sim.startSimulation();
     }
 }
