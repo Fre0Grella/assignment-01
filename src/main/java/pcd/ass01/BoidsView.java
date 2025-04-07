@@ -107,6 +107,8 @@ public class BoidsView implements ChangeListener {
             if (firstTime) {
                 firstTime = false;
                 new Thread(sim::runSimulation).start();
+            } else {
+                sim.resetSimulation();
             }
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(frame, "Invalid number of boids", "Error", JOptionPane.ERROR_MESSAGE);

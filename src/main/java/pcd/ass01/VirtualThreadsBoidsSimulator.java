@@ -50,94 +50,96 @@ public class VirtualThreadsBoidsSimulator implements BoidsSimulator {
     @Override
     public void resetSimulation() {
         reset.set(true);
+        runSimulation();
     }
 
     public void runSimulation() {
-        System.out.println("start");
+        new Thread(() -> {
 
-        final var pool = new ArrayList<Thread>();
+            System.out.println("start");
 
-        this.barrier = new CyclicBarrier(model.getBoids().size());
-        this.updateViewBarrier = new CyclicBarrier(model.getBoids().size() + 1);
+            final var pool = new ArrayList<Thread>();
 
+            this.barrier = new CyclicBarrier(model.getBoids().size());
+            this.updateViewBarrier = new CyclicBarrier(model.getBoids().size() + 1);
 
+            for (final var boid : model.getBoids()) {
+                pool.add(new Thread(() -> {
+                    while (true) {
+                        try {
+                            updateViewBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if (reset.get()) {
+                            break;
+                        }
 
-        for (final var boid : model.getBoids()) {
-            pool.add(new Thread(() -> {
-                while (true) {
-
+                        boid.updateVelocity(model);
+                        //System.out.println(Thread.currentThread().getName()+" arrived");
+                        try {
+                            barrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+                        boid.updatePos(model);
+                    }
+                }));
+            }
+            pool.forEach(Thread::startVirtualThread);
+            this.reset.set(false);
+            int it = 0;
+            while (it < iteration) {
+                while (!running.get()) {
                     try {
-                        updateViewBarrier.await();
-                    } catch (InterruptedException | BrokenBarrierException e) {
+                        viewCoordinator.acquire();
+                    } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                    if (reset.get()) {
-                        break;
-                    }
-
-                    boid.updateVelocity(model);
-                    //System.out.println(Thread.currentThread().getName()+" arrived");
-                    try {
-                        barrier.await();
-                    } catch (InterruptedException | BrokenBarrierException e) {
-                        throw new RuntimeException(e);
-                    }
-                    boid.updatePos(model);
                 }
-            }));
-        }
-        pool.forEach(Thread::startVirtualThread);
-        this.reset.set(false);
-        int it = 0;
-        while (it < iteration) {
-            while (!running.get()) {
+                if (reset.get()) {
+                    break;
+                }
+
+                var t0 = System.currentTimeMillis();
                 try {
-                    viewCoordinator.acquire();
+                    //System.out.println("View Wait");
+                    updateViewBarrier.await();
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    throw new RuntimeException(e);
+                }
+
+
+                if (view.isPresent()) {
+                    view.get().update(framerate);
+                    var t1 = System.currentTimeMillis();
+                    var dtElapsed = t1 - t0;
+                    //System.out.println("Elapsed time:\t" + dtElapsed);
+                    var framratePeriod = 1000 / FRAMERATE;
+                    if (dtElapsed < framratePeriod) {
+                        try {
+                            Thread.sleep(framratePeriod - dtElapsed);
+                        } catch (Exception ignored) {
+                        }
+                        framerate = FRAMERATE;
+                    } else {
+                        framerate = (int) (1000 / dtElapsed);
+                    }
+                } else {
+                    it++;
+                    //System.out.println("Iteration no.\t"+it);
+                }
+            }
+            reset.set(true);
+            for (Thread thread : pool) {
+                try {
+                    thread.join();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
-            if (reset.get()) {
-                break;
-            }
-
-            var t0 = System.currentTimeMillis();
-            try {
-                //System.out.println("View Wait");
-                updateViewBarrier.await();
-            } catch (InterruptedException | BrokenBarrierException e) {
-                throw new RuntimeException(e);
-            }
-
-
-            if (view.isPresent()) {
-                view.get().update(framerate);
-                var t1 = System.currentTimeMillis();
-                var dtElapsed = t1 - t0;
-                //System.out.println("Elapsed time:\t" + dtElapsed);
-                var framratePeriod = 1000 / FRAMERATE;
-                if (dtElapsed < framratePeriod) {
-                    try {
-                        Thread.sleep(framratePeriod - dtElapsed);
-                    } catch (Exception ignored) {
-                    }
-                    framerate = FRAMERATE;
-                } else {
-                    framerate = (int) (1000 / dtElapsed);
-                }
-            } else {
-                it++;
-                //System.out.println("Iteration no.\t"+it);
-            }
-        }
-        resetSimulation();
-        for (Thread thread : pool) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        }).start();
+        System.out.println("ciao");
 
     }
 }
