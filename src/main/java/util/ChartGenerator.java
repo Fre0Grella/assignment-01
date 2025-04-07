@@ -32,8 +32,8 @@ public class ChartGenerator {
 
         for (var seriesData : dataSeries) {
             XYSeries series = new XYSeries(seriesData.label);
-            List<Number> xData = seriesData.xData;
-            List<Number> yData = seriesData.yData;
+            var xData = seriesData.xData;
+            var yData = seriesData.yData;
             for (int i = 0; i < xData.size(); i++) {
                 series.add(xData.get(i), yData.get(i));
             }
@@ -63,10 +63,11 @@ public class ChartGenerator {
             NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
             yAxis.setRange(0, 110);
             yAxis.setLabel(yAxisLabel);
-        } else {
-            NumberAxis yAxis = (NumberAxis) plot.getDomainAxis();
-            yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
         }
+        //else {
+        //    NumberAxis yAxis = (NumberAxis) plot.getDomainAxis();
+        //    yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        //}
 
         // Set white background
         plot.setBackgroundPaint(Color.WHITE);
@@ -148,6 +149,6 @@ public class ChartGenerator {
     /**
          * A helper class to store three related objects together.
          */
-        public record DataSeries(List<Number> xData, List<Number> yData, String label) {
+        public record DataSeries(List<Double> xData, List<Double> yData, String label) {
     }
 }
