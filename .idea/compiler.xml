@@ -9,5 +9,6 @@
         <module name="pcd-ass-01" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel target="1.6" />
   </component>
 </project>

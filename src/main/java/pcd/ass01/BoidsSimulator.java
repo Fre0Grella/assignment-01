@@ -1,7 +1,9 @@
 package pcd.ass01;
 
 public interface BoidsSimulator {
-    void attachView(BoidsView view);
+    void config(BoidsView view);
+
+    void config(int numBoids, int iteration);
 
     void startSimulation();
 

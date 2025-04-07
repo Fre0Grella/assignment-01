@@ -27,7 +27,7 @@ public class SerialBoidsSimulation {
                 AVOID_RADIUS);
         var sim = new SerialBoidsSimulator(model);
         var view = new BoidsView(model, sim, SCREEN_WIDTH, SCREEN_HEIGHT);
-    	sim.attachView(view);
+    	sim.config(view);
 
     }
 

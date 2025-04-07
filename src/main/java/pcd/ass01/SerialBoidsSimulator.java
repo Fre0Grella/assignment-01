@@ -4,9 +4,10 @@ import java.util.Optional;
 
 public class SerialBoidsSimulator implements BoidsSimulator {
 
-    private BoidsModel model;
+    private final BoidsModel model;
     private Optional<BoidsView> view;
-    
+
+    private int iteration = 1;
     private static final int FRAMERATE = 25;
     private int framerate;
     private boolean running = true;
@@ -16,8 +17,15 @@ public class SerialBoidsSimulator implements BoidsSimulator {
         view = Optional.empty();
     }
 
-    public void attachView(BoidsView view) {
+    public void config(BoidsView view) {
     	this.view = Optional.of(view);
+    }
+
+
+    public void config(int numBoids, int iteration) {
+        model.initializeBoids(numBoids);
+        this.iteration = iteration;
+        runSimulation();
     }
 
     @Override
@@ -32,8 +40,9 @@ public class SerialBoidsSimulator implements BoidsSimulator {
     }
 
     public void runSimulation() {
-    	while (true) {
-            while (running) {
+        int it = 0;
+    	while (it < iteration) {
+            while (running && it < iteration) {
                 var t0 = System.currentTimeMillis();
     		    var boids = model.getBoids();
     		    /*
@@ -71,11 +80,11 @@ public class SerialBoidsSimulator implements BoidsSimulator {
                     } else {
                     	framerate = (int) (1000/dtElapsed);
                     }
-    		    }
+    		    } else {
+                    it++;
+                    //System.out.println("Iteration no.\t"+it);
+                }
             }
-            try {
-                Thread.sleep(50);
-            } catch (Exception ex) {}
     	}
     }
 }

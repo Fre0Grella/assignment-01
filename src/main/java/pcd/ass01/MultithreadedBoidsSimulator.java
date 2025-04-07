@@ -14,6 +14,7 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
 
     private static final int FRAMERATE = 25;
     private int framerate;
+    private int iteration = 1;
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final int cores;
     private final CyclicBarrier barrier;
@@ -28,8 +29,16 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
         view = Optional.empty();
     }
 
-    public void attachView(BoidsView view) {
+
+
+    public void config(BoidsView view) {
         this.view = Optional.of(view);
+    }
+
+    public void config(int numBoids, int iteration) {
+        model.initializeBoids(numBoids);
+        this.iteration = iteration;
+        runSimulation();
     }
 
     public void startSimulation() {
@@ -76,7 +85,8 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
             }));
         }
         pool.forEach(Thread::start);
-        while (true) {
+        int it = 0;
+        while (it < iteration) {
 
             while (!running.get()) {
                 try {
@@ -97,7 +107,7 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
                 view.get().update(framerate);
                 var t1 = System.currentTimeMillis();
                 var dtElapsed = t1 - t0;
-                System.out.println("Elapsed time:\t" + dtElapsed);
+                //System.out.println("Elapsed time:\t" + dtElapsed);
                 var framratePeriod = 1000 / FRAMERATE;
                 if (dtElapsed < framratePeriod) {
                     try {
@@ -108,6 +118,9 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
                 } else {
                     framerate = (int) (1000 / dtElapsed);
                 }
+            } else {
+                it++;
+                //System.out.println("Iteration no.\t"+it);
             }
         }
     }
