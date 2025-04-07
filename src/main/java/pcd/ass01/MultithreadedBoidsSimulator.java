@@ -16,6 +16,7 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
     private int framerate;
     private int iteration = 1;
     private final AtomicBoolean running = new AtomicBoolean(true);
+    private final AtomicBoolean quit = new AtomicBoolean(false);
     private final int cores;
     private final CyclicBarrier barrier;
     private final CyclicBarrier updateViewBarrier;
@@ -67,6 +68,9 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
                         updateViewBarrier.await();
                     } catch (InterruptedException | BrokenBarrierException e) {
                         throw new RuntimeException(e);
+                    }
+                    if (quit.get()) {
+                        break;
                     }
                     for (int k1 = indexStart; k1 < indexEnd; k1++) {
                         boids.get(k1).updateVelocity(model);
@@ -121,6 +125,14 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
             } else {
                 it++;
                 //System.out.println("Iteration no.\t"+it);
+            }
+        }
+        quit.set(true);
+        for (Thread thread : pool) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
     }
