@@ -19,23 +19,29 @@ public class Performance {
 
         int cores = Runtime.getRuntime().availableProcessors();
         System.out.println("Number of available core used: "+cores);
-        //var MtSim = new MultithreadedBoidsSimulator(model, cores);
-
-
-        //var x = getAvgTime(MtSim,2000,1000);
+        var model = resetModel();
+        var MtSim = new MultithreadedBoidsSimulator(model, 1);
+        System.out.println("Calculate base time...");
+        var base = getAvgTime(MtSim,500,1000);
 
         var dataseries = new ArrayList<DataSeries>();
         var noCores = new ArrayList<Double>();
-        var avgTimes = new ArrayList<Double>();
+        var speedup = new ArrayList<Double>();
         for (int i = 1; i <= cores ; i++) {
-            var model = resetModel();
-            var SrSim = new SerialBoidsSimulator(model);
-
+            model = resetModel();
+            var SrSim = new MultithreadedBoidsSimulator(model,i);
             noCores.add((double) i);
-            avgTimes.add(getAvgTime(SrSim, 5000, 100));
+            double wct = 0;
+            for (int j = 0; j < 5; j++) {
+                System.out.println("it. "+j+" for "+i+" core.");
+            wct += getAvgTime(SrSim, 500, 1000);
+
+            }
+            wct = wct / 5;
+            speedup.add(wct/base);
 
         }
-        dataseries.add(new DataSeries(noCores,avgTimes,"Multithread"));
+        dataseries.add(new DataSeries(noCores,speedup,"Multithread"));
 
         new ChartGenerator().createLineChart("Speedup.png",
                 "Speedup",
@@ -43,7 +49,7 @@ public class Performance {
                 "Elapsed Time (ms)",
                 false,
                 dataseries);
-        //System.out.println(x+" ms");
+        System.out.println("Done.");
 
 
 
