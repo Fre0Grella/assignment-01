@@ -10,4 +10,6 @@ public interface BoidsSimulator {
     void runSimulation();
 
     void stopSimulation();
+
+    default void resetSimulation() {};
 }
