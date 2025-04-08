@@ -28,7 +28,59 @@ The `UpdateBarrier` is a barrier responsible for coordinating the controller thr
 The other `Barrier` is responsible to wait for the completion of velocities' update before updating the positions. This synchronization point guarantees the absence of race conditions in accessing the boids' positions.
 
 ### Race conditions in velocities' update
-In order to address the race condition previously identified read-write locks have been introduced for each velocity vector. The `CalculateAligment` method will read-lock the other boid's velocity and `UpdateVel` method will write-lock its own velocity when updating it. 
+In order to address the race condition previously identified read-write locks have been introduced for each velocity vector. The `CalculateAligment` method will read-lock the other boid's velocity and `UpdateVel` method will write-lock its own velocity when updating it.
 
 ### View-Controller synchronization
-In order to 
+In order to make the view responsive, the controller is executed on a different thread. The view can stop and resume the simulation by calling respectively the method `StopSimulation` and `StartSimulation` of the controller which changes a condition variable. This condition variable is implemented with an atomic boolean field and an event-based semaphore.
+
+## Model checking with Java Pathfinder
+A simplified version of the program has been produced for the sake of checking the proposed model against JPF. This version0's controller only does two iteration and then terminate. Meanwhile, the main thread will call `stopSimulation` and subsequently `startSimulation` to emulate the calling of these methods by the event dispatcher thread of Java Swing. JPF will try every operations order, thus checking that in every moment the call of those methods won't produce any faults or race conditions. 
+
+The model is initialized with a random generator which returns always 0, this is done in order to place the boids close and forcing the model to check if the read write locks previously introduced work correctly. For speeding up the execution the model will contain only two boids with only two threads.
+
+This is the output produced by JPF:
+```
+Starting a Gradle Daemon (subsequent builds will be faster)
+
+> Task :compileJava
+Note: /home/luca/ass01-jpf/src/main/java/pcd/ass01/BoidsView.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :runAssignment01Verify
+[WARNING] unknown classpath element: /home/luca/ass01-jpf/jpf-runner/build/examples
+JavaPathfinder core system v8.0 (rev 81bca21abc14f6f560610b2aed65832fbc543994) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+pcd.ass01.BoidsTest.main()
+
+====================================================== search started: 4/8/25, 3:25 PM
+[WARNING] orphan NativePeer method: jdk.internal.reflect.Reflection.getCallerClass(I)Ljava/lang/Class;
+start
+start
+start
+
+====================================================== results
+no errors detected
+
+====================================================== statistics
+elapsed time:       00:02:10
+states:             new=217915,visited=533370,backtracked=751285,end=61
+search:             maxDepth=302,constraints=0
+choice generators:  thread=217915 (signal=6296,lock=49027,sharedRef=137432,threadApi=7,reschedule=25153), data=0
+heap:               new=115263,released=1051573,maxLive=791,gcCycles=693671
+instructions:       16969303
+max memory:         246MB
+loaded code:        classes=140,methods=3311
+
+====================================================== search finished: 4/8/25, 3:27 PM
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+See https://docs.gradle.org/7.4/userguide/command_line_interface.html#sec:command_line_warnings
+
+BUILD SUCCESSFUL in 2m 23s
+2 actionable tasks: 2 executed
+```
