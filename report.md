@@ -42,6 +42,45 @@ This implementation leverages the ability to spawn a great number of virtual thr
 ### Task-based version
 In this version for each iteration each boid delegates the execution of `UpdateVel` and `UpdatePos` to a `FixedThreadPool`. The synchronization barrier effect is obtained by waiting for the result of `Future<?>` returned. Just like in the platform version the number of underlying threads is `Ncpu + 1`.
 
+## Performance evaluation
+In high performance computing, speedup can be defined as:
+
+S(p) = T_parallel(1) / T_parallel(p)
+
+with:
+- p = number of processors
+- T_parallel(p) = Execution time of the parallel program with p processors
+Where S(p) = p is the ideal case.
+
+
+We choose to don't use the serial program to compute the speedup beacause it could cause spurios superlinear speedup that don't reflect the real performance.
+Using this definition we can also defined the strong Scaling Efficiency and Weak Scaling Efficiency.
+
+The Strong scaling efficiency can be defined as:
+
+E_s(p) = S(p)/p
+
+This formula is important as it's a visual way to represent the Amdhal law, that is, the amount of code that wasn't parallelized. instead the Weak Scaling Efficiency is different and can be defined as
+
+W(p) = T_1 \ T_p
+
+where:
+- t_1 = time required to complete 1 unit of work with 1 processor
+- t_p = time required to complete p unit of work with p processors
+
+Unfortunately this formula required an analysis of the computational cost and since the boids simulation don't have a computational cost we exclude this measure to our analysis.
+
+
+The result below were generated with a script located at src\main\java\util\Performance.java in the performance branch.
+We measured the performance of the 3 version on a AMD Ryzen 7 5700U, with 8 core and 16 logic processor, and this is what we got:
+
+![insert graph]
+
+We can see that the Task based version is the best clearly outperforming the multithreaded version.
+we could also note the peak and elbow present in the multithreaded version, this strange behaviour is due the architecture used to perform the benchmark that has only 8 physical core. In this case after filling each physical core the CPU use the HTT (Hyper-threading Tecnologies) to perform multiple concurrent computation on every physical core, slowing down the performance. one last thing to pay attention is that the task based version perform a superlinear speedup on a 2 core settings. This phenomenon could be due internal optimization made by the jvm at runtime.
+For the virtual thread version we couldn't able to record the data presented above because this design is not able to restrain the number of core used to a costant number.
+
+
 ## Model checking with Java Pathfinder
 A simplified version of the program has been produced for the sake of checking the proposed model against JPF. This version0's controller only does two iteration and then terminate. Meanwhile, the main thread will call `stopSimulation` and subsequently `startSimulation` to emulate the calling of these methods by the event dispatcher thread of Java Swing. JPF will try every operations order, thus checking that in every moment the call of those methods won't produce any faults or race conditions. 
 
