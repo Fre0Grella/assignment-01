@@ -74,7 +74,8 @@ Unfortunately this formula required an analysis of the computational cost and si
 The result below were generated with a script located at src\main\java\util\Performance.java in the performance branch.
 We measured the performance of the 3 version on a AMD Ryzen 7 5700U, with 8 core and 16 logic processor, and this is what we got:
 
-![insert graph]
+![SpeedUp.png](SpeedUp.png)
+![effinciency](StrongScalingEfficiency.png)
 
 We can see that the Task based version is the best clearly outperforming the multithreaded version.
 we could also note the peak and elbow present in the multithreaded version, this strange behaviour is due the architecture used to perform the benchmark that has only 8 physical core. In this case after filling each physical core the CPU use the HTT (Hyper-threading Tecnologies) to perform multiple concurrent computation on every physical core, slowing down the performance. one last thing to pay attention is that the task based version perform a superlinear speedup on a 2 core settings. This phenomenon could be due internal optimization made by the jvm at runtime.
