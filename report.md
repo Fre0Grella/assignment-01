@@ -38,7 +38,7 @@ A simplified version of the program has been produced for the sake of checking t
 
 The model is initialized with a random generator which returns always 0, this is done in order to place the boids close and forcing the model to check if the read write locks previously introduced work correctly. For speeding up the execution the model will contain only two boids with only two threads.
 
-This is the output produced by JPF:
+The version that uses JPF is on the Git branch called `jpf`. This is the output produced:
 ```
 Starting a Gradle Daemon (subsequent builds will be faster)
 
