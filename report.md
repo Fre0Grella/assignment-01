@@ -39,7 +39,7 @@ The platform thread version is a direct implementation of the presented design. 
 ### Virtual thread version
 This implementation leverages the ability to spawn a great number of virtual threads with little overhead by creating a virtual thread for each boid.
 
-### Task thread version
+### Task-based version
 In this version for each iteration each boid delegates the execution of `UpdateVel` and `UpdatePos` to a `FixedThreadPool`. The synchronization barrier effect is obtained by waiting for the result of `Future<?>` returned. Just like in the platform version the number of underlying threads is `Ncpu + 1`.
 
 ## Model checking with Java Pathfinder
