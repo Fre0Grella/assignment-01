@@ -33,6 +33,15 @@ In order to address the race condition previously identified read-write locks ha
 ### View-Controller synchronization
 In order to make the view responsive, the controller is executed on a different thread. The view can stop and resume the simulation by calling respectively the method `StopSimulation` and `StartSimulation` of the controller which changes a condition variable. This condition variable is implemented with an `AtomicBoolean` field and an event `Semaphore`.
 
+### Platform thread version
+The platform thread version is a direct implementation of the presented design. Since this is a case of compute-intensive tasks, the number of spawned threads dedicated to computation is `Ncpu + 1` and each of them will simulate a sublist of boids in order to keep the workload balanced among all threads.
+
+### Virtual thread version
+This implementation leverages the ability to spawn a great number of virtual threads with little overhead by creating a virtual thread for each boid.
+
+### Task thread version
+In this version for each iteration each boid delegates the execution of `UpdateVel` and `UpdatePos` to a `FixedThreadPool`. The synchronization barrier effect is obtained by waiting for the result of `Future<?>` returned. Just like in the platform version the number of underlying threads is `Ncpu + 1`.
+
 ## Model checking with Java Pathfinder
 A simplified version of the program has been produced for the sake of checking the proposed model against JPF. This version0's controller only does two iteration and then terminate. Meanwhile, the main thread will call `stopSimulation` and subsequently `startSimulation` to emulate the calling of these methods by the event dispatcher thread of Java Swing. JPF will try every operations order, thus checking that in every moment the call of those methods won't produce any faults or race conditions. 
 
