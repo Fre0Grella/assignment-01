@@ -16,6 +16,7 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
     private int framerate;
     private int iteration = 1;
     private final AtomicBoolean running = new AtomicBoolean(true);
+    private final AtomicBoolean quit = new AtomicBoolean(false);
     private final int cores;
     private final CyclicBarrier barrier;
     private final CyclicBarrier updateViewBarrier;
@@ -31,12 +32,18 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
 
 
 
+
     public void config(BoidsView view) {
         this.view = Optional.of(view);
     }
 
-    public void config(int numBoids, int iteration) {
+    @Override
+    public void initBoids(int numBoids) {
         model.initializeBoids(numBoids);
+    }
+
+    public void config(int numBoids, int iteration) {
+
         this.iteration = iteration;
         runSimulation();
     }
@@ -58,30 +65,36 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
         for (int i = 0; i < cores; i++) {
             var id = i;
             pool.add(new Thread(() -> {
-                while (true) {
+                while (!quit.get()) {
                     var boids = model.getBoids();
                     var nboids = boids.size();
                     var indexStart = id * nboids / cores;
                     var indexEnd = (id + 1) * nboids / cores;
-                    try {
-                        updateViewBarrier.await();
-                    } catch (InterruptedException | BrokenBarrierException e) {
-                        throw new RuntimeException(e);
+                    //System.out.println(indexStart+"\t"+indexEnd);
+                    if (!quit.get()) {
+                        try {
+                            updateViewBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     for (int k1 = indexStart; k1 < indexEnd; k1++) {
                         boids.get(k1).updateVelocity(model);
                     }
                     //System.out.println(Thread.currentThread().getName()+" arrived");
-                    try {
-                        barrier.await();
-                    } catch (InterruptedException | BrokenBarrierException e) {
-                        throw new RuntimeException(e);
+                    if (!quit.get()) {
+                        try {
+                            barrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     //System.out.println(Thread.currentThread().getName()+" Resumed");
                     for (int k = indexStart; k < indexEnd; k++) {
                         boids.get(k).updatePos(model);
                     }
                 }
+
             }));
         }
         pool.forEach(Thread::start);
@@ -97,11 +110,14 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
             }
 
             var t0 = System.currentTimeMillis();
-            try {
-                //System.out.println("View Wait");
-                updateViewBarrier.await();
-            } catch (InterruptedException | BrokenBarrierException e) {
-                throw new RuntimeException(e);
+            if (!quit.get()) {
+
+                try {
+                    //System.out.println("View Wait");
+                    updateViewBarrier.await();
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    throw new RuntimeException(e);
+                }
             }
             if (view.isPresent()) {
                 view.get().update(framerate);
@@ -123,5 +139,15 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
                 //System.out.println("Iteration no.\t"+it);
             }
         }
+        quit.set(true);
+
+        for (Thread thread : pool) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 }

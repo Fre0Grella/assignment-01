@@ -21,9 +21,14 @@ public class SerialBoidsSimulator implements BoidsSimulator {
     	this.view = Optional.of(view);
     }
 
+    @Override
+    public void initBoids(int numBoids) {
+        model.initializeBoids(numBoids);
+    }
+
 
     public void config(int numBoids, int iteration) {
-        model.initializeBoids(numBoids);
+        //model.initializeBoids(numBoids);
         this.iteration = iteration;
         runSimulation();
     }

@@ -31,8 +31,13 @@ public class VirtualThreadsBoidsSimulator implements BoidsSimulator {
         this.view = Optional.of(view);
     }
 
-    public void config(int numBoids, int iteration) {
+    @Override
+    public void initBoids(int numBoids) {
         model.initializeBoids(numBoids);
+    }
+
+    public void config(int numBoids, int iteration) {
+        //model.initializeBoids(numBoids);
         this.iteration = iteration;
         runSimulation();
     }

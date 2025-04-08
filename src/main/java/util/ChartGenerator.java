@@ -12,6 +12,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChartGenerator {
@@ -30,7 +31,7 @@ public class ChartGenerator {
                                        boolean isPercentage, List<DataSeries> dataSeries) {
         XYSeriesCollection dataset = new XYSeriesCollection();
 
-        for (var seriesData : dataSeries) {
+        for (DataSeries seriesData : dataSeries) {
             XYSeries series = new XYSeries(seriesData.label);
             var xData = seriesData.xData;
             var yData = seriesData.yData;
@@ -81,6 +82,7 @@ public class ChartGenerator {
         // Configure line styles and markers with rainbow colors
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
         Color[] rainbowColors = {Color.RED, Color.BLUE, Color.GREEN, Color.ORANGE, Color.MAGENTA, Color.CYAN};
+
         for (int i = 0; i < dataSeries.size(); i++) {
             renderer.setSeriesShapesVisible(i, true);
             renderer.setSeriesPaint(i, rainbowColors[i % rainbowColors.length]);
@@ -102,7 +104,33 @@ public class ChartGenerator {
 
     public void exampleUsage() {
         // Example usage
-        var ciao = new DataSeries(List.of(3.0,4.0,5.0),List.of(4.0,5.0,6.0),"ciao");
+        var a = new ArrayList<Double>();
+        a.add(1.0);
+        a.add(2.0);
+        a.add(3.0);
+        a.add(4.0);
+        a.add(5.0);
+        var b = new ArrayList<Double>();
+        b.add(1.0);
+        b.add(2.0);
+        b.add(3.0);
+        b.add(4.0);
+        b.add(5.0);
+        var ciao = new DataSeries(a,b,"ciao");
+        var c = new ArrayList<Double>();
+        a.add(2.0);
+        a.add(3.0);
+        a.add(4.0);
+        a.add(5.0);
+        a.add(6.0);
+        var d = new ArrayList<Double>();
+        b.add(7.0);
+        b.add(8.0);
+        b.add(9.0);
+        b.add(10.0);
+        b.add(11.0);
+        var cica = new DataSeries(c,d,"cico");
+
         new ChartGenerator().createLineChart(
                 "strongScalingChart.png",
                 "Strong scaling efficiency",
@@ -111,7 +139,7 @@ public class ChartGenerator {
                 false,
                 List.of(
 
-                        new DataSeries(List.of(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0),
+                        /*new DataSeries(List.of(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0),
                                 List.of(100.0, 99.0, 99.5, 99.7, 99.8, 99.9, 99.6, 99.5, 99.3, 99.2, 99.0, 97.0),
                                 "N large, IT small"),
 
@@ -139,9 +167,8 @@ public class ChartGenerator {
                                 List.of(180.0, 95.0, 92.0, 90.0, 87.0, 85.0, 80.0, 75.0, 70.0, 65.0, 60.0, 50.0),
                                 "N smalle"),
 
-                        new DataSeries(List.of(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0),
-                                List.of(120.0, 95.0, 92.0, 90.0, 87.0, 85.0, 80.0, 75.0, 70.0, 65.0, 60.0, 50.0),
-                                "N smrge")
+                        ciao*/
+                        ciao,cica
                 )
         );
     }
@@ -149,6 +176,6 @@ public class ChartGenerator {
     /**
          * A helper class to store three related objects together.
          */
-        public record DataSeries(List<Double> xData, List<Double> yData, String label) {
+        public record DataSeries(ArrayList<Double> xData, ArrayList<Double> yData, String label) {
     }
 }

@@ -2,8 +2,6 @@ package pcd.ass01;
 import static util.Costants.*;
 public class VirtualThreadBoidsSimulation {
 
-
-
     public static void main(String[] args) {
         var model = new BoidsModel(
                 0,
