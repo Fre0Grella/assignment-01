@@ -31,7 +31,7 @@ The other `Barrier` is responsible to wait for the completion of velocities' upd
 In order to address the race condition previously identified read-write locks have been introduced for each velocity vector. The `CalculateAligment` method will read-lock the other boid's velocity and `UpdateVel` method will write-lock its own velocity when updating it.
 
 ### View-Controller synchronization
-In order to make the view responsive, the controller is executed on a different thread. The view can stop and resume the simulation by calling respectively the method `StopSimulation` and `StartSimulation` of the controller which changes a condition variable. This condition variable is implemented with an atomic boolean field and an event-based semaphore.
+In order to make the view responsive, the controller is executed on a different thread. The view can stop and resume the simulation by calling respectively the method `StopSimulation` and `StartSimulation` of the controller which changes a condition variable. This condition variable is implemented with an `AtomicBoolean` field and an event `Semaphore`.
 
 ## Model checking with Java Pathfinder
 A simplified version of the program has been produced for the sake of checking the proposed model against JPF. This version0's controller only does two iteration and then terminate. Meanwhile, the main thread will call `stopSimulation` and subsequently `startSimulation` to emulate the calling of these methods by the event dispatcher thread of Java Swing. JPF will try every operations order, thus checking that in every moment the call of those methods won't produce any faults or race conditions. 
