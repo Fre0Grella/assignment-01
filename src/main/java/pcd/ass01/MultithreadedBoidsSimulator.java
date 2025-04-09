@@ -17,15 +17,15 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
     private int iteration = 1;
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final int cores;
-    private final CyclicBarrier barrier;
-    private final CyclicBarrier updateViewBarrier;
+    private final Barrier barrier;
+    private final Barrier updateViewBarrier;
     private final Semaphore viewCoordinator = new Semaphore(1);
 
     public MultithreadedBoidsSimulator(BoidsModel model, int cores) {
         this.model = model;
         this.cores = cores;
-        this.barrier = new CyclicBarrier(cores);
-        this.updateViewBarrier = new CyclicBarrier(cores + 1);
+        this.barrier = new Barrier(cores);
+        this.updateViewBarrier = new Barrier(cores + 1);
         view = Optional.empty();
     }
 
@@ -65,7 +65,7 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
                     var indexEnd = (id + 1) * nboids / cores;
                     try {
                         updateViewBarrier.await();
-                    } catch (InterruptedException | BrokenBarrierException e) {
+                    } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                     for (int k1 = indexStart; k1 < indexEnd; k1++) {
@@ -74,7 +74,7 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
                     //System.out.println(Thread.currentThread().getName()+" arrived");
                     try {
                         barrier.await();
-                    } catch (InterruptedException | BrokenBarrierException e) {
+                    } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                     //System.out.println(Thread.currentThread().getName()+" Resumed");
@@ -100,7 +100,7 @@ public class MultithreadedBoidsSimulator implements BoidsSimulator {
             try {
                 //System.out.println("View Wait");
                 updateViewBarrier.await();
-            } catch (InterruptedException | BrokenBarrierException e) {
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
             if (view.isPresent()) {
