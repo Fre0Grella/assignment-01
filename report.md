@@ -53,14 +53,14 @@ with:
 Where S(p) = p is the ideal case.
 
 
-We choose to don't use the serial program to compute the speedup beacause it could cause spurios superlinear speedup that don't reflect the real performance.
-Using this definition we can also defined the strong Scaling Efficiency and Weak Scaling Efficiency.
+We choose to don't use the serial program to compute the speedup because it could cause spurious super linear speedup that don't reflect the real performance.
+Using this definition we can also define the strong Scaling Efficiency and Weak Scaling Efficiency.
 
 The Strong scaling efficiency can be defined as:
 
 E_s(p) = S(p)/p
 
-This formula is important as it's a visual way to represent the Amdhal law, that is, the amount of code that wasn't parallelized. instead the Weak Scaling Efficiency is different and can be defined as
+This formula is important as it's a visual way to represent the Amdahl law, that is, the amount of code that wasn't parallelized. instead the Weak Scaling Efficiency is different and can be defined as
 
 W(p) = T_1 \ T_p
 
@@ -72,15 +72,15 @@ Unfortunately this formula required an analysis of the computational cost and si
 
 
 The result below were generated with a script located at src\main\java\util\Performance.java in the performance branch.
-We measured the performance of the 3 version on a AMD Ryzen 7 5700U, with 8 core and 16 logic processor, and this is what we got:
+We measured the performance of the 3 version on an AMD Ryzen 7 5700U, with 8 core and 16 logic processor, and this is what we got:
 
 ![SpeedUp.png](SpeedUp.png)
-![effinciency](StrongScalingEfficiency.png)
+![efficiency](StrongScalingEfficiency.png)
 
 We can see that the Task based version is the best clearly outperforming the multithreaded version.
-we could also note the peak and elbow present in the multithreaded version, this strange behaviour is due the architecture used to perform the benchmark that has only 8 physical core. In this case after filling each physical core the CPU use the HTT (Hyper-threading Tecnologies) to perform multiple concurrent computation on every physical core, slowing down the performance. one last thing to pay attention is that the task based version perform a superlinear speedup on a 2 core settings. This phenomenon could be due internal optimization made by the jvm at runtime.
-For the virtual thread version we couldn't able to record the data presented above because this design is not able to restrain the number of core used to a costant number.
-
+we could also note the peak and elbow present in the multithreaded version, this strange behaviour is due the architecture used to perform the benchmark that has only 8 physical core. In this case after filling each physical core the CPU use the HTT (Hyper-threading Technologies) to perform multiple concurrent computation on every physical core, slowing down the performance. one last thing to pay attention is that the task based version perform a super linear speedup on a 2 core settings. This phenomenon could be due internal optimization made by the jvm at runtime.
+For the virtual thread version we couldn't able to record the data presented above because this design is not able to restrain the number of core used to a constant number.
+Note: for sake of performance the race condition identified in accessing boids' velocities has not been fixed since it does not alter significantly the correctness of the model. A fixed version of the project can be found and test in the `jpf` branch.
 
 ## Model checking with Java Pathfinder
 A simplified version of the program has been produced for the sake of checking the proposed model against JPF. This version0's controller only does two iteration and then terminate. Meanwhile, the main thread will call `stopSimulation` and subsequently `startSimulation` to emulate the calling of these methods by the event dispatcher thread of Java Swing. JPF will try every operations order, thus checking that in every moment the call of those methods won't produce any faults or race conditions. 
